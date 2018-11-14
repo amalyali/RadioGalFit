@@ -48,7 +48,7 @@ else:
     print 'Chain unconverged'
 
 # Load original source catalog
-#orig_values = np.loadtxt('galaxy_catalog_20.0_10.0-200.0_uJy.txt')[:nsrc,:]
+orig_values = np.loadtxt('galaxy_catalog.txt')[:nsrc,:]
 
 RAD2ARCSEC = 648000.0/np.pi
 mvalues = np.empty((nsrc,6))
