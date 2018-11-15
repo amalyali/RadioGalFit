@@ -22,7 +22,7 @@ FOV = 3600. * ARCS2RAD
 parser = argparse.ArgumentParser(description='GalNest')
 parser.add_argument('msfile', help='Input MS filename')  # MS = measurement set
 parser.add_argument('-ns', dest='nssrc', type=int, default=1, help='Number of Sersic Galaxies')
-parser.add_argument('ngal', help='Number of galaxies for I/O purposes')
+#parser.add_argument('ngal', help='Number of galaxies for I/O purposes')
 parser.add_argument('seed', help='Seed for MultiNest')
 parser.add_argument('n_live', help='No. live points')
 parser.add_argument('s_eff', help='Sampling efficiency of multinest')
@@ -30,7 +30,7 @@ parser.add_argument('z_tol', help='Evidence tolerance (convergence criterion)')
 args = parser.parse_args(sys.argv[1:])
 
 # Load in params from cmd line for output naming.
-N_GAL = int(args.ngal)
+#N_GAL = int(args.ngal)
 SEED = int(args.seed)
 N = int(args.n_live)
 S_EFF = float(args.s_eff)
@@ -42,7 +42,7 @@ s_lower, s_upper = 10.0, 200.0
 scale_lower, scale_upper = 0.3, 3.5 #arcsec
 
 MAX_MODES= 1000  # for MultiNest to detect
-PREFIX = 'galnest_%ssource_seed%s_%s_%s_%s_' % (N_GAL, SEED, N, S_EFF, EV_TOL)
+PREFIX = 'galnest_seed%s_%s_%s_%s_' % (SEED, N, S_EFF, EV_TOL)
 parameters = ["l", "m", "flux", "scalelength", "ee1", "ee2"]
 N_PARAMS = len(parameters)
 
@@ -234,7 +234,7 @@ with montblanc.rime_solver(slvr_cfg) as slvr:  # Read in observed visibilities
     mode_stats = a.get_mode_stats()
 
     # Write results to file
-    file_w = 'output_galnest_%ssource_seed%s_%s_%s_%s_' % (N_GAL, SEED, N, S_EFF, EV_TOL)
+    file_w = 'output_galnest_seed%s_%s_%s_%s_' % (SEED, N, S_EFF, EV_TOL)
     with open(file_w, 'a') as txt:
         a = 0
         while a < 2000:
