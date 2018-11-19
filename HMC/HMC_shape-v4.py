@@ -86,15 +86,14 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     catalog = np.loadtxt('catalog100.txt')[:nsrc,:]
 
 # Random source coordinates in the l,m (brightness image) domain
-    l = catalog[:,0] #radius*np.cos(orient)
-    m = catalog[:,1] #radius*np.sin(orient)
+    l = catalog[:,0]  
+    m = catalog[:,1]  
     lm = mbu.shape_list([l,m], shape=slvr.lm.shape, dtype=slvr.lm.dtype)
     slvr.transfer_lm(lm)
 
 # Brightness matrix for sources in muJy
     stokes = np.empty(shape=slvr.stokes.shape, dtype=slvr.stokes.dtype)
-    I, Q, U, V = stokes[:,:,0], stokes[:,:,1], stokes[:,:,2], stokes[:,:,3]
-    #I[:] = np.ones(shape=I.shape)*70.  
+    I, Q, U, V = stokes[:,:,0], stokes[:,:,1], stokes[:,:,2], stokes[:,:,3] 
     I[:] = np.outer(catalog[:,2], np.ones((ntime,)))   
     Q[:] = np.zeros(shape=Q.shape)
     U[:] = np.zeros(shape=U.shape)
