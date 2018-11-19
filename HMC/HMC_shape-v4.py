@@ -81,20 +81,15 @@ slvr_cfg = montblanc.rime_solver_cfg(msfile=args.msfile,
 with montblanc.rime_solver(slvr_cfg) as slvr:
 
     nsrc, nssrc, ntime, nchan = slvr.dim_local_size('nsrc', 'nssrc', 'ntime', 'nchan')
-    #true_values = np.empty((nssrc,6)) # position, flux, scalelength, ellipticity
-
     
 # Read from catalog file, sources flux, scalelength and ellipticity
     catalog = np.loadtxt('catalog100.txt')[:nsrc,:]
 
 # Random source coordinates in the l,m (brightness image) domain
-  #  radius = slvr.ft(np.sqrt(np.random.random(nsrc))*1800*ARCS2RAD)
-  #  orient = slvr.ft(np.random.random(nsrc)*2*np.pi)
     l = catalog[:,0] #radius*np.cos(orient)
     m = catalog[:,1] #radius*np.sin(orient)
     lm = mbu.shape_list([l,m], shape=slvr.lm.shape, dtype=slvr.lm.dtype)
     slvr.transfer_lm(lm)
-   # true_values[:,0:2] = lm
 
 # Brightness matrix for sources in muJy
     stokes = np.empty(shape=slvr.stokes.shape, dtype=slvr.stokes.dtype)
@@ -107,7 +102,6 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     slvr.transfer_stokes(stokes)
     alpha = slvr.ft(np.ones(nssrc*ntime)*(-0.7)).reshape(nsrc,ntime)
     slvr.transfer_alpha(alpha)
-    #true_values[:,2]=I[:,0]
  
     # mean lognormal prior for scalelength, dependent on source flux 
     mean_v = (-0.93+0.33*np.log(catalog[:,2]))+np.log(ARCS2RAD)
@@ -115,24 +109,11 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     # If there are sersic sources, create their
     # shape matrix and transfer it.
     if nssrc > 0:
-        #mod = slvr.ft(np.random.random(nssrc))*0.4
-        #angle = slvr.ft(np.random.random(nssrc))*2*np.pi
-        e1 = catalog[:,4] #mod*np.sin(angle)
-        e2 = catalog[:,5] #mod*np.cos(angle)
-        R = catalog[:,3]*ARCS2RAD #slvr.ft(np.random.random(nssrc)*(maxscale-minscale))+minscale
+        e1 = catalog[:,4] 
+        e2 = catalog[:,5]  
+        R = catalog[:,3]*ARCS2RAD 
         sersic_shape_or = slvr.ft(np.array([e1,e2,R])).reshape((3,nssrc))
         slvr.transfer_sersic_shape(sersic_shape_or)
-
-    #    true_values[:,3] = R
-    #    true_values[:,4] = e1
-    #    true_values[:,5] = e2
-    #np.savetxt('testHMC.original',true_values,fmt='%.3e')
-
-    #slvr.ref_frequency=1.4e9
-
-    #Set channels frequencies
-    #ch_frequencies = np.array([1.05e9])
-    #slvr.transfer_frequency(ch_frequencies)
 
     #E_beam = mbu.random_like(slvr.E_beam_gpu)
     #slvr.transfer_E_beam(E_beam)
@@ -151,23 +132,13 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     with slvr.context:
         observed_vis = slvr.retrieve_model_vis()
 
-#    SNR = np.sum(np.square(np.absolute(observed_vis)))
-#    SNR = np.sqrt(SNR/sigma)
-#    print "SNR: ",SNR
-
-
-    np.random.seed(593159753)   #(4263817185)
+    np.random.seed(593159753)  
     noiseR = np.random.normal(0,np.sqrt(sigma),size=observed_vis.shape)
     noiseI = np.random.normal(0,np.sqrt(sigma),size=observed_vis.shape)
     noise = noiseR +1j*noiseI
     observed_vis = observed_vis+noise
     print 'transfer to GPU'
     slvr.transfer_observed_vis(observed_vis)
-
-    # Generate and transfer a weight vector.
-    #weight_vector = mbu.random_like(slvr.weight_vector_gpu))
-    #slvr.transfer_weight_vector(weight_vector)
-
     print slvr
 
 
@@ -239,17 +210,15 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     numParams = 3*nssrc 
 
     #Starting points for the sampling
-    # assume flux and positions known and take into account Montblanc bug 
+    # assume flux and positions known  
     start_lm = lm 
     slvr.transfer_lm(start_lm)
-
-    #startvalues = np.loadtxt('RadioLensfit_1000results.txt', delimiter='|')[:nsrc,:]
-    start_e1 = slvr.ft(np.random.random(nssrc))*0.2 - 0.1 # startvalues[:,3]
-    start_e2 = slvr.ft(np.random.random(nssrc))*0.2 - 0.1 # startvalues[:,6]
+ 
+    start_e1 = slvr.ft(np.random.random(nssrc))*0.2 - 0.1 
+    start_e2 = slvr.ft(np.random.random(nssrc))*0.2 - 0.1  
     #Use relation between median scalelength and flux density as starting point for scalelengths
     start_sersic_scale = (np.exp(-0.93+0.33*np.log(catalog[:,2]))+ slvr.ft(np.random.random(nssrc))*0.5)*ARCS2RAD
     startPoint = np.array([start_e1,start_e2,start_sersic_scale], dtype=slvr.ft).reshape(3*nssrc)
-    #startPoint = np.array([slvr.ft(np.ones(nssrc))*0.1,start_e2,start_sersic_scale+0.5*ARCS2RAD], dtype=slvr.ft).reshape(3*nssrc)
 
     # maximum value of the parameter epsilon; 0<epsilon<2
     maxEps = 0.05
@@ -287,11 +256,9 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     # this should be close/equal to the covariance
     # matrix of parameters / posterior distriubtion if Gaussian
     # If parameters are correlated, try diagonal elemens
-    #steps = slvr.ft(np.concatenate((np.array(e_std),np.array(e_std),np.array(scale_std)),axis=0))
     steps_e = 0.1525 - 0.00175*catalog[:,2]  #linear relation between e_std and flux[muJy]
-    #steps_e = slvr.ft(np.concatenate((std_e,std_e),axis=0))
     steps_scale = (0.2175 - 0.00225*catalog[:,2])*ARCS2RAD ##linear relation between scale_std[arcsec] and flux[muJy]
-    steps = slvr.ft(np.concatenate((steps_e,steps_e,steps_scale),axis=0)) #np.ones(2*nssrc)*0.08,np.ones(nssrc)*0.14*ARCS2RAD),axis=0))
+    steps = slvr.ft(np.concatenate((steps_e,steps_e,steps_scale),axis=0)) 
     keDiagMInv = steps*steps
 
     print 'Starting HMC\n'
