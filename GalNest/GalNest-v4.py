@@ -7,22 +7,21 @@ import sys
 import argparse
 import numpy as np
 import scipy.special
-import time
+from scipy.stats import rv_continuous
+import pickle
 import pymultinest
 from pymultinest.solve import solve
 import montblanc
 import montblanc.util as mbu
 
 PI = np.pi
-pi = PI
 C0 = 299792458.0
-ARCS2RAD = np.pi / 648000.
+ARCS2RAD = PI / 648000.
 FOV = 3600. * ARCS2RAD
 
 parser = argparse.ArgumentParser(description='GalNest')
 parser.add_argument('msfile', help='Input MS filename')  # MS = measurement set
 parser.add_argument('-ns', dest='nssrc', type=int, default=1, help='Number of Sersic Galaxies')
-#parser.add_argument('ngal', help='Number of galaxies for I/O purposes')
 parser.add_argument('seed', help='Seed for MultiNest')
 parser.add_argument('n_live', help='No. live points')
 parser.add_argument('s_eff', help='Sampling efficiency of multinest')
@@ -30,7 +29,6 @@ parser.add_argument('z_tol', help='Evidence tolerance (convergence criterion)')
 args = parser.parse_args(sys.argv[1:])
 
 # Load in params from cmd line for output naming.
-#N_GAL = int(args.ngal)
 SEED = int(args.seed)
 N = int(args.n_live)
 S_EFF = float(args.s_eff)
@@ -41,10 +39,10 @@ e_lower, e_upper = 0.0, 0.804
 s_lower, s_upper = 10.0, 200.0
 scale_lower, scale_upper = 0.3, 3.5 #arcsec
 
-MAX_MODES= 1000  # for MultiNest to detect
-PREFIX = 'galnest_seed%s_%s_%s_%s_' % (SEED, N, S_EFF, EV_TOL)
 parameters = ["l", "m", "flux", "scalelength", "ee1", "ee2"]
 N_PARAMS = len(parameters)
+MAX_MODES= 1000  # for MultiNest to detect
+PREFIX = 'galnest_seed%s_%s_%s_%s_' % (SEED, N, S_EFF, EV_TOL)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define prior distributions required for MultiNest sampling routine
@@ -52,12 +50,11 @@ def flux_CDF(x):
     """
     Cumulative distribution function of a power law flux prior, whose CDF is well know: x^{alpha + 1}/(alpha + 1)
     """
-    from scipy.stats import rv_continuous
     class flux_pdf(rv_continuous):
         def _pdf(self, y):
             return (-0.34 / (np.power(s_upper, -0.34) - np.power(s_lower, -0.34))) * np.power(y, -1.34)
 
-    flux = flux_pdf(name='flux')  # instance of subclass due to scipy
+    flux = flux_pdf(name='flux')
     flux.a, flux.b = s_lower, s_upper  # set range over which CDF defined.
     return flux.cdf(x)
 
@@ -79,7 +76,6 @@ def ellipticity_CDF(x):
     a = 0.2298  # dispersion
     A = 2.595  # normalization factor
 
-    from scipy.stats import rv_continuous
     class ellipticity_pdf(rv_continuous):
         def _pdf(self, y):
             return A * y * (1. - np.exp((y - e_max) / a)) / ((1. + y) * np.sqrt(y * y + e_0 * e_0))
