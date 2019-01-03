@@ -48,7 +48,8 @@ PREFIX = 'galnest_seed%s_%s_%s_%s_' % (SEED, N, S_EFF, EV_TOL)
 # Define prior distributions required for MultiNest sampling routine
 def flux_CDF(x):
     """
-    Cumulative distribution function of a power law flux prior, whose CDF is well know: x^{alpha + 1}/(alpha + 1)
+    Cumulative distribution function of a power law flux prior, whose CDF is well know: x^{alpha + 1}/(alpha + 1).
+    :param x: value at which CDF is evaluated.
     """
     class flux_pdf(rv_continuous):
         def _pdf(self, y):
@@ -62,6 +63,7 @@ def flux_CDF(x):
 def lognormal_CDF(x):
     """
     CDF of log normal function for scale-lengths.
+    :param x: value at which CDF is evaluated.
     """
     mu, sigma = 0.266, 0.3136
     return 0.5 * (1.0 + scipy.special.erf((np.log(x) - mu) / (sigma * np.sqrt(2.0))))
@@ -69,7 +71,8 @@ def lognormal_CDF(x):
 
 def ellipticity_CDF(x):
     """
-    CDF of ellipticity distribution, factors defined in eq 8 of Rivi and Miller 2018
+    CDF of ellipticity distribution, factors defined in eq 8 of Rivi and Miller 2018.
+    :param x: value at which CDF is evaluated.
     """
     e_max = 0.804  # ellipticity cutoff
     e_0 = 0.0732   # circularity parameter
@@ -88,6 +91,8 @@ def ellipticity_CDF(x):
 def evaluate_CDF(min_value, max_value, CD_func):
     """
     Evaluate (only done once) CDF between min_value and max_value.
+    :param min_value: lower bound of CDF
+    :param max_value: upper bound of CDF
     """
     N = 1000.0
 
@@ -104,13 +109,15 @@ def generate_random_data(u, min_value, max_value, F):
     Generate random data between [min,max] according to a given Cumulative Distribution
     Function (CDF), using inverse transform sampling.
     :param u: random number between 0 and 1
-    :param F: CDF array, evaluated using evaluate_CDF.
+    :param min_value: lower bound of CDF
+    :param max_value: upper bound of CDF
+    :param F: CDF array, computed using evaluate_CDF.
     :return: a random sample from the probability distribution underlying the inputed CDF.
     """
     i, N = 1, 1000.0
     h = (max_value - min_value) / N  # compute increment size
 
-    while (u > F[i] and i <= (int(N - 1))):
+    while u > F[i] and i <= int(N - 1):
         i += 1
 
     y = min_value + h * (i - 1) + h * (u - F[i - 1]) / (F[i] - F[i - 1])  # find F^{-1}(u) via linear interpolation
@@ -133,8 +140,7 @@ with montblanc.rime_solver(slvr_cfg) as slvr:  # Read in observed visibilities
     alpha = slvr.ft(np.ones(1 * ntime) * (-0.7)).reshape(1, ntime)
     slvr.transfer_alpha(alpha)
 
-    # Let slvr know noise on visibilities
-    # Set visibility noise variance (muJy)
+    # Let slvr know noise on visibilities, set visibility noise variance (muJy)
     time_acc = 60
     efficiency = 0.9
     channel_bandwidth_hz = 240e6
