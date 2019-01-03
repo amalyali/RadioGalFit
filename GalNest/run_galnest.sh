@@ -3,8 +3,8 @@
 #PBS -q gpu
 #PBS -l walltime=100:00:00
 #PBS -N galnest_g3_100
-#PBS -e ./pbs_info/${PBS_O_JOBID}e.txt
-#PBS -o ./pbs_info/${PBS_O_JOBID}o.txt
+#PBS -e ./pbs_info/${PBS_JOBID}e.txt
+#PBS -o ./pbs_info/${PBS_JOBID}o.txt
 
 . /etc/profile.d/modules.sh
 
