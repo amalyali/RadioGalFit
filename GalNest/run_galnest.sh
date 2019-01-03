@@ -3,6 +3,8 @@
 #PBS -q gpu
 #PBS -l walltime=100:00:00
 #PBS -N galnest_g3_100
+#PBS -e ./pbs_info/${PBS_O_JOBID}e.txt
+#PBS -o ./pbs_info/${PBS_O_JOBID}o.txt
 
 . /etc/profile.d/modules.sh
 
@@ -25,6 +27,6 @@ N_LIVE=5000
 python compute_obs_vis.py /share/data1/alm/10_SKA1-1pol.ms/ -ns $NGAL > ./data/output_comp_vis_single-v4
 
 # Standard GalNest run
-mpiexec -n 1 python GalNest-v4.py /share/data1/alm/10_SKA1-1pol.ms/ -ns 1 $NGAL $SEED $N_LIVE $S_EFF $EV_TOL > galnest_
+mpiexec -n 1 python GalNest-v4.py /share/data1/alm/10_SKA1-1pol.ms/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL > ./data/galnest_
 
 source deactivate
