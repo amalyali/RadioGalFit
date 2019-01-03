@@ -43,7 +43,9 @@ S_EFF = float(args.s_eff)
 EV_TOL = float(args.z_tol)
 N_PARAMS = len(parameters)
 MAX_MODES= 1000  # for MultiNest to detect
-PREFIX = 'galnest_seed%s_%s_%s_%s_' % (SEED, N_LIVE, S_EFF, EV_TOL)
+DATA_DIR = './data'
+PREFIX = '%s/mn_output/galnest_seed%s_%s_%s_%s_' % (DATA_DIR, SEED, N_LIVE, S_EFF, EV_TOL)
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -234,8 +236,11 @@ with montblanc.rime_solver(slvr_cfg) as slvr:  # Read in observed visibilities
     mode_stats = a.get_mode_stats()
 
     # Write results to file
-    file_w = 'output_galnest_seed%s_%s_%s_%s_' % (SEED, N_LIVE, S_EFF, EV_TOL)
-    with open(file_w, 'a') as txt:
+    results_pickle = '%s/seed%s_%s_%s_%s_.pkl' % (DATA_DIR, SEED, N_LIVE, S_EFF, EV_TOL)
+    with open(results_pickle, 'wb') as f:
+        pickle.dump(all_arr, f)
+
+    """#with open(file_w, 'a') as txt:
         a = 0
         while a < 2000:
             txt.write("%3.6f %3.6f %3.6f " % (np.asarray(s['modes'][a]['local log-evidence']),
@@ -248,4 +253,4 @@ with montblanc.rime_solver(slvr_cfg) as slvr:  # Read in observed visibilities
                 txt.write("%3.10f %3.10f %3.10f %3.10f " % (mean, sigma, max_like, max_post))
 
             txt.write("\n")
-            a += 1
+            a += 1"""
