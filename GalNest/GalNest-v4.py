@@ -147,13 +147,8 @@ with montblanc.rime_solver(slvr_cfg) as slvr:  # Read in observed visibilities
 
     # ------------------------------------------------------------------------------------------------------------------
     # Evaluate CDF arrays
-    e_lower, e_upper = 0.0, 0.804
     ellipticity_CDF_ev = evaluate_CDF(e_lower, e_upper, ellipticity_CDF)
-
-    s_lower, s_upper = 10.0, 200.0
     flux_CDF_ev = evaluate_CDF(s_lower, s_upper, flux_CDF)
-
-    scale_lower, scale_upper = 0.3, 3.5
     scale_CDF_ev = evaluate_CDF(scale_lower, scale_upper, lognormal_CDF)
 
     # ------------------------------------------------------------------------------------------------------------------
