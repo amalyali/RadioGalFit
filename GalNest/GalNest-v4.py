@@ -47,7 +47,6 @@ DATA_DIR = './data'
 PREFIX = '%s/mn_output/galnest_seed%s_%s_%s_%s_' % (DATA_DIR, SEED, N_LIVE, S_EFF, EV_TOL)
 
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Define prior distributions required for MultiNest sampling routine
 def flux_CDF(x):
