@@ -7,33 +7,23 @@ import numpy as np
 from sklearn.cluster import MeanShift
 import sys
 import argparse
+import pandas as pd
+import pickle
 
 ARCS2RAD = np.pi/648000.
 FOV = 3600. * ARCS2RAD
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='.')
-    parser.add_argument('filename', help='filename of the output file produced by GalNest')
-    parser.add_argument('s_cut', help='Flux cut')
-    args = parser.parse_args(sys.argv[1:])
-
-    FLUX_CUT = float(args.s_cut)
-    multinest_output_file = args.filename
+l, m, s, a, e1, e2 = 0, 1, 2, 3, 4, 5  # define parameter indexes
 
 
-def flux_filter(modes_x, flux_cut):
+def flux_filter(df_modes, flux_cut):
     """
     Filter all modes with flux below flux limit.
-    :param modes_x:
+    :param df_modes:
     :return: filtered mode list
     """
-    modes_y = []
-    for x in modes_x:
-        i = 0
-        if x[11] > flux_cut:
-            modes_y.append(x)
-        i += 1
-    return np.asarray(modes_y)
+    df_modes['above_cut'] = np.where(df_modes['mean'].str[s] > flux_cut, 1, 0)
+    return df_modes
 
 
 def identify_clusters(modes):
@@ -109,6 +99,21 @@ if __name__ == "__main__":
     4. Sort final selected modes via l positional value
     5. Save final selected modes to a text file. 
     """
+    parser = argparse.ArgumentParser(description='.')
+    parser.add_argument('filename', help='filename of the output file produced by GalNest')
+    parser.add_argument('s_cut', help='Flux cut')
+    args = parser.parse_args(sys.argv[1:])
+
+    FLUX_CUT = float(args.s_cut)
+    pickled_multinest_output = args.filename
+    #results_pickle = '%s/seed%s_%s_%s_%s_.pkl' % (DATA_DIR, SEED, N_LIVE, S_EFF, EV_TOL)
+    results_pickle = './seed1_100_0.8_0.1_.pkl'
+    data = pd.read_pickle(results_pickle)
+    df = pd.DataFrame.from_dict(data['modes'])
+    flux_filter(df, FLUX_CUT)
+
+
+
     data = np.loadtxt(multinest_output_file)
     data = flux_filter(data, FLUX_CUT)
     cluster_centres = identify_clusters(data)
