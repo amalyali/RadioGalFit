@@ -24,9 +24,9 @@ EV_TOL=0.1
 N_LIVE=5000
 
 # Compute observed visibilities
-python compute_obs_vis.py /share/data1/alm/10_SKA1-1pol.ms/ -ns $NGAL > ./data/output_comp_vis_single-v4
+python compute_obs_vis.py /share/data1/alm/10_SKA1-1pol.ms/ -ns $NGAL
 
 # Standard GalNest run
-mpiexec -n 1 python GalNest-v4.py /share/data1/alm/10_SKA1-1pol.ms/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL > ./data/galnest_
+mpiexec -n 1 python GalNest-v4.py /share/data1/alm/10_SKA1-1pol.ms/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
 
 source deactivate
