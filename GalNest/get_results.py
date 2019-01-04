@@ -78,12 +78,12 @@ if __name__ == "__main__":
     FLUX_CUT = float(args.s_cut)
     pickled_multinest_output = args.filename
 
-    results_pickle = './seed1_100_0.8_0.1_.pkl'
+    results_pickle = './data/seed1_100_0.8_0.1_.pkl'
     data = pd.read_pickle(results_pickle)
     df = pd.DataFrame.from_dict(data['modes'])
     df_final = final_modes(identify_clusters(df), FLUX_CUT)
 
     # Write results to file
-    output_pickle = './seed1_100_0.8_0.1_final.pkl'
+    output_pickle = './data/seed1_100_0.8_0.1_final.pkl'
     with open(output_pickle, 'wb') as f:
         pickle.dump(df_final, f)
