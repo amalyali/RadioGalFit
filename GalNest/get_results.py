@@ -19,23 +19,22 @@ l, m, s, a, e1, e2 = 0, 1, 2, 3, 4, 5  # define parameter indexes
 def flux_filter(df_modes, flux_cut):
     """
     Filter all modes with flux below flux limit.
-    :param df_modes:
-    :return: filtered mode list
+    :param df_modes: input df of MultiNest modal output in dictionary.
+    :return: input df with boolean column describing above or below flux cut
     """
-    df_modes['above_cut'] = np.where(df_modes['mean'].str[s] > flux_cut, 1, 0)
+    df_modes['above_cut'] = np.where(df_modes['mean'].str[s] > flux_cut, 'True', 'False')
     return df_modes
 
 
-def identify_clusters(modes):
+def identify_clusters(df_modes):
     """
     Use meanshift algorithm to identify spatial clustering of modes returned by MultiNest.
-    :param modes:
-    :return: all identified clusters.
+    :param df_modes:
+    :return: input df with each mode assigned a cluster id.
     """
     positions = []
-
-    for x, y in zip(modes[:,3], modes[:,7]):
-        positions.append((x,y))
+    for x, y in zip(df_modes['mean'].str[l].values, df_modes['mean'].str[m].values):
+        positions.append((x, y))
 
     positions = np.asarray(positions)
 
@@ -45,49 +44,20 @@ def identify_clusters(modes):
 
     # cluster_centers = ms.cluster_centers_
     labels = ms.labels_
-
-    labels_unique = np.unique(labels)
-    n_clusters_ = len(labels_unique)
-
-    clusters = []
-    for i in range(n_clusters_):
-        # select only data observations with cluster label == i
-        clusters.append(positions[np.where(labels==i)])
-
-    return clusters
+    df_modes['cluster_id'] = labels
+    return df_modes
 
 
-def match_positions_2_array(a,B):
-    for b in B:
-        if (np.array_equal(a,np.array([b[3],b[7]]))):
-            return b
-
-
-def final_modes(modes, clusters):
+def final_modes(df_modes):
     """
     Within each cluster, select mode with highest local log evidence as
     best estimate for that group (and therefore the source).
-        Match each item in cluster, with position from original modes
-            ie. we link with fluxes, shapes...
-        Then, add the highest local log evidence of each cluster
-            to the final modes array.
-    :param modes: as above
-    :param clusters: output of identify_clusters
-    :return:
+    :param df_modes: as above
+    :return: df with boolean column identifying highest Z_loc mode in each cluster.
     """
-    final_modes = []
-
-    for cluster in clusters:
-        mode_vals = []
-        for position in cluster:
-            position = match_positions_2_array(position, modes)
-            mode_vals.append(position)
-
-        mode_vals = np.asarray(mode_vals)
-        final_modes.append(mode_vals[np.argmax(mode_vals[:,1], axis=0)])
-
-    final_modes = np.asarray(final_modes)
-    return final_modes
+    df_modes['max_in_cluster'] = df_modes.groupby(['cluster_id'])['local log-evidence'].transform(max) == df_modes[
+        'local log-evidence']
+    return df_modes
 
 
 if __name__ == "__main__":
@@ -110,6 +80,7 @@ if __name__ == "__main__":
     results_pickle = './seed1_100_0.8_0.1_.pkl'
     data = pd.read_pickle(results_pickle)
     df = pd.DataFrame.from_dict(data['modes'])
+
     flux_filter(df, FLUX_CUT)
 
 
