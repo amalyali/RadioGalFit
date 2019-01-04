@@ -57,7 +57,6 @@ def final_modes(df_modes, flux_cut):
     :return:
     """
     df_modes['max_in_cluster'] = df_modes.groupby(['cluster_id'])['local log-evidence'].transform(max) == df_modes['local log-evidence']
-    df_modes['max_in_cluster'] = df_modes.groupby(['cluster_id'])['local log-evidence'].transform(max) == df_modes['local log-evidence']
     df_modes = flux_filter(df_modes, flux_cut)
     df_modes['final'] = np.where((df_modes['max_in_cluster'] == True) & (df_modes['above_cut'] == True), 1, 0)
     return df_modes
@@ -83,3 +82,8 @@ if __name__ == "__main__":
     data = pd.read_pickle(results_pickle)
     df = pd.DataFrame.from_dict(data['modes'])
     df_final = final_modes(identify_clusters(df), FLUX_CUT)
+
+    # Write results to file
+    output_pickle = './seed1_100_0.8_0.1_final.pkl'
+    with open(output_pickle, 'wb') as f:
+        pickle.dump(df_final, f)
