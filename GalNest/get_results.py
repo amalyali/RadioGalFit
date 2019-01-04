@@ -22,7 +22,7 @@ def flux_filter(df_modes, flux_cut):
     :param df_modes: input df of MultiNest modal output in dictionary.
     :return: input df with boolean column describing above or below flux cut
     """
-    df_modes['above_cut'] = np.where(df_modes['mean'].str[s] > flux_cut, 'True', 'False')
+    df_modes['above_cut'] = np.where(df_modes['mean'].str[s] > flux_cut, 1, 0)
     return df_modes
 
 
@@ -48,26 +48,28 @@ def identify_clusters(df_modes):
     return df_modes
 
 
-def final_modes(df_modes):
+def final_modes(df_modes, flux_cut):
     """
     Within each cluster, select mode with highest local log evidence as
     best estimate for that group (and therefore the source).
-    :param df_modes: as above
-    :return: df with boolean column identifying highest Z_loc mode in each cluster.
+    :param modes: as above
+    :param clusters: output of identify_clusters
+    :return:
     """
-    df_modes['max_in_cluster'] = df_modes.groupby(['cluster_id'])['local log-evidence'].transform(max) == df_modes[
-        'local log-evidence']
+    df_modes['max_in_cluster'] = df_modes.groupby(['cluster_id'])['local log-evidence'].transform(max) == df_modes['local log-evidence']
+    df_modes['max_in_cluster'] = df_modes.groupby(['cluster_id'])['local log-evidence'].transform(max) == df_modes['local log-evidence']
+    df_modes = flux_filter(df_modes, flux_cut)
+    df_modes['final'] = np.where((df_modes['max_in_cluster'] == True) & (df_modes['above_cut'] == True), 1, 0)
     return df_modes
 
 
 if __name__ == "__main__":
     """
     Load MultiNest output.
-    1. Apply a flux cut
-    2. Find cluster centres
-    3. Select mode in each cluster with highest local log evidence
-    4. Sort final selected modes via l positional value
-    5. Save final selected modes to a text file. 
+    1. Find cluster centres
+    2. Select mode in each cluster with highest local log evidence
+    3. Apply a flux cut
+    4. Save final selected modes to a text file. 
     """
     parser = argparse.ArgumentParser(description='.')
     parser.add_argument('filename', help='filename of the output file produced by GalNest')
@@ -76,18 +78,8 @@ if __name__ == "__main__":
 
     FLUX_CUT = float(args.s_cut)
     pickled_multinest_output = args.filename
-    #results_pickle = '%s/seed%s_%s_%s_%s_.pkl' % (DATA_DIR, SEED, N_LIVE, S_EFF, EV_TOL)
+
     results_pickle = './seed1_100_0.8_0.1_.pkl'
     data = pd.read_pickle(results_pickle)
     df = pd.DataFrame.from_dict(data['modes'])
-
-    flux_filter(df, FLUX_CUT)
-
-
-
-    data = np.loadtxt(multinest_output_file)
-    data = flux_filter(data, FLUX_CUT)
-    cluster_centres = identify_clusters(data)
-    best_modes = final_modes(data, cluster_centres)
-    best_modes = best_modes[best_modes[:, 3].argsort()[::-1]]
-    np.savetxt('best_modes.txt', best_modes)
+    df_final = final_modes(identify_clusters(df), FLUX_CUT)
