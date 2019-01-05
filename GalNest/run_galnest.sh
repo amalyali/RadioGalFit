@@ -17,19 +17,29 @@ export CUDA_VISIBLE_DEVICES=3  # select a smaller number of GPUs (montblanc uses
 source activate boost_gcc5
 
 # Define number of galaxies and MultiNest params
-NGAL=2
+NGAL=20
 SEED=1
 S_EFF=0.8
 EV_TOL=0.1
-N_LIVE=1000
+N_LIVE=8000
 
 # Compute observed visibilities
 python compute_obs_vis.py /share/data1/alm/10_SKA1-1pol.ms/ -ns $NGAL
 
 # Standard GalNest run
+SEED=1
+mpiexec -n 1 python GalNest-v4.py /share/data1/alm/10_SKA1-1pol.ms/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+
+SEED=2
+mpiexec -n 1 python GalNest-v4.py /share/data1/alm/10_SKA1-1pol.ms/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+
+SEED=3
+mpiexec -n 1 python GalNest-v4.py /share/data1/alm/10_SKA1-1pol.ms/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+
+SEED=4
 mpiexec -n 1 python GalNest-v4.py /share/data1/alm/10_SKA1-1pol.ms/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
 
 # Write results
-python get_results.py 10.0 'file_name'
+#python get_results.py 'file_name' 10.0
 
 source deactivate
