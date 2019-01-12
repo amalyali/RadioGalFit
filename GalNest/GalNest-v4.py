@@ -24,7 +24,7 @@ parameters = ["l", "m", "flux", "scalelength", "ee1", "ee2"]
 
 # Define limits of prior.
 e_lower, e_upper = 0.0, 0.804
-s_lower, s_upper = 10.0, 200.0
+s_lower, s_upper = 9.0, 200.0
 scale_lower, scale_upper = 0.3, 3.5  # arcsec
 
 # Load in params from cmd line for output naming.
