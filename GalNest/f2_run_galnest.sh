@@ -24,7 +24,7 @@ EV_TOL=0.1
 N_LIVE=8000
 
 # Compute observed visibilities
-CATALOG='catalog-S10_mal.txt'
+CATALOG='./data/f2_modes/catalog-S10_mal.txt'
 MSFILE='/share/data1/alm/10_SKA1-1pol.ms/'
 python compute_obs_vis.py ${MSFILE} -ns $NGAL ${CATALOG}
 
