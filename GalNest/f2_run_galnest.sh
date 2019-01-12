@@ -31,12 +31,12 @@ python compute_obs_vis.py ${MSFILE} -ns $NGAL ${CATALOG}
 # Standard GalNest run
 # Getting example F2 modes
 SEED=1
-mpiexec -n 1 python GalNest-v4.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+mpiexec -n 1 python GalNest-v4_f2modes.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
 SEED=2
-mpiexec -n 1 python GalNest-v4.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+mpiexec -n 1 python GalNest-v4_f2modes.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
 SEED=3
-mpiexec -n 1 python GalNest-v4.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+mpiexec -n 1 python GalNest-v4_f2modes.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
 SEED=4
-mpiexec -n 1 python GalNest-v4.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+mpiexec -n 1 python GalNest-v4_f2modes.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
 
 source deactivate
