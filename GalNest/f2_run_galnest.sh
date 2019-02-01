@@ -25,18 +25,15 @@ N_LIVE=8000
 
 # Compute observed visibilities
 CATALOG='./data/f2_modes/catalog-S10_mal.txt'
-MSFILE='/share/data1/alm/10_SKA1-1pol.ms/'
-python compute_obs_vis.py ${MSFILE} -ns $NGAL ${CATALOG}
+MSFILE='10_SKA1-1pol.ms'
+
+python compute_obs_vis.py /share/data1/alm/${MSFILE}/ -ns $NGAL ./data/f2_modes/catalog-S10_mal.txt
 
 # Standard GalNest run
 # Getting example F2 modes
 SEED=1
-mpiexec -n 1 python GalNest-v4_f2modes.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+mpiexec -n 1 python GalNest-v4_f2modes.py /share/data1/alm/${MSFILE}/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
 SEED=2
-mpiexec -n 1 python GalNest-v4_f2modes.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
-SEED=3
-mpiexec -n 1 python GalNest-v4_f2modes.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
-SEED=4
-mpiexec -n 1 python GalNest-v4_f2modes.py ${MSFILE} -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
+mpiexec -n 1 python GalNest-v4_f2modes.py /share/data1/alm/${MSFILE}/ -ns 1 $SEED $N_LIVE $S_EFF $EV_TOL
 
 source deactivate
