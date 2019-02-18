@@ -32,10 +32,10 @@ threshold = float(args.threshold)
 print "Threshold: ", threshold
 
 #Set visibility noise variance (muJy)
-time_acc = 1
+time_acc = 60
 efficiency = 0.9
-channel_bandwidth_hz = 2e6
-SEFD = 420
+channel_bandwidth_hz = 240e6
+SEFD = 400e6
 sigma = (SEFD*SEFD)/(2.*time_acc*channel_bandwidth_hz*efficiency*efficiency)
 
 # Get the RIME solver
@@ -72,7 +72,7 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
         slvr.transfer_lm(lm)
 
         flux = source[:,11]        
-        I[:] = np.outer(flux, np.ones((ntime,)))*1e-6
+        I[:] = np.outer(flux, np.ones((ntime,)))
         slvr.transfer_stokes(stokes)
        
         R = source[:,15]*ARCS2RAD
