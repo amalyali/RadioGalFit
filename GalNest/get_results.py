@@ -14,10 +14,10 @@ FOV = 3600. * ARCS2RAD
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='.')
     parser.add_argument('filename', help='filename of the output file produced by GalNest')
-    #parser.add_argument('s_cut', help='Flux cut')
+    parser.add_argument('s_cut', help='Flux cut')
     args = parser.parse_args(sys.argv[1:])
 
-    #FLUX_CUT = float(args.s_cut)
+    FLUX_CUT = float(args.s_cut)
     multinest_output_file = args.filename
 
 
@@ -103,13 +103,14 @@ def final_modes(modes, clusters):
 if __name__ == "__main__":
     """
     Load MultiNest output.
-    1. Find cluster centres
-    2. Select mode in each cluster with highest local log evidence
-    3. Sort final selected modes via l positional value
-    4. Save final selected modes to a text file. 
+    1. Apply a flux cut
+    2. Find cluster centres
+    3. Select mode in each cluster with highest local log evidence
+    4. Sort final selected modes via l positional value
+    5. Save final selected modes to a text file. 
     """
     data = np.loadtxt(multinest_output_file)
-    #data = flux_filter(data, FLUX_CUT)
+    data = flux_filter(data, FLUX_CUT)
     cluster_centres = identify_clusters(data)
     best_modes = final_modes(data, cluster_centres)
     best_modes = best_modes[best_modes[:, 3].argsort()[::-1]]
