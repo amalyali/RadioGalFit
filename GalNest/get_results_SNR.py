@@ -59,8 +59,6 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     alpha = slvr.ft(np.ones(nssrc*ntime)*(-0.7)).reshape(nsrc,ntime)
     slvr.transfer_alpha(alpha)
 
-    e1 = 0.
-    e2 = 0.
     #Set visibility noise variance (muJy)
     slvr.set_sigma_sqrd(sigma)
 
@@ -74,7 +72,9 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
         flux = source[:,11]        
         I[:] = np.outer(flux, np.ones((ntime,)))
         slvr.transfer_stokes(stokes)
-       
+
+        e1 = source[:,19]
+        e2 = source[:,23]
         R = source[:,15]*ARCS2RAD
         sersic_shape = slvr.ft(np.array([e1,e2,R])).reshape((3,nssrc))
         slvr.transfer_sersic_shape(sersic_shape)
@@ -93,7 +93,7 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
 
         i = i+1
 
-    results = np.empty((len(modes),17))
-    results[:,:16] = data[modes,3:]
-    results[:,16] = np.array(modes_SNR)
+    results = np.empty((len(modes),25))
+    results[:,:24] = data[modes,3:]
+    results[:,24] = np.array(modes_SNR)
     np.savetxt("results.txt",results)
