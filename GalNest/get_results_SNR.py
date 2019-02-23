@@ -32,7 +32,8 @@ threshold = float(args.threshold)
 print "Threshold: ", threshold
 
 n_src = 20
-best_modes_file = './data/%s_src/%s_best_modes.txt'
+best_modes_file = './data/%s_src/%s_best_modes.txt' % (n_src, n_src)
+results_file = './data/%s_src/%s_results.txt' % (n_src, n_src)
 
 #Set visibility noise variance (muJy)
 time_acc = 60
@@ -99,4 +100,4 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     results = np.empty((len(modes),25))
     results[:,:24] = data[modes,3:]
     results[:,24] = np.array(modes_SNR)
-    np.savetxt("results.txt",results)
+    np.savetxt(results_file, results)
