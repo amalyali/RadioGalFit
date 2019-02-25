@@ -21,7 +21,7 @@ import pickle
 from  montblanc.config import RimeSolverConfig as Options
 
 ARCS2RAD = np.pi/648000.
-l, m, s, a, e1, e2 = 0, 1, 2, 3, 4, 5  # define parameter indexes
+l, m, s, a, e1_idx, e2_idx = 0, 1, 2, 3, 4, 5  # define parameter indexes
 
 parser = argparse.ArgumentParser(description='OBSERVED VISIBILITIES SIMULATION')
 parser.add_argument('msfile', help='Input MS filename')
@@ -71,10 +71,10 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
         I[:] = np.outer(flux, np.ones((ntime,)))
         slvr.transfer_stokes(stokes)
 
-        e1 = row['mean'][e1]
-        e2 = row['mean'][e2]
+        e1 = row['mean'][e1_idx]
+        e2 = row['mean'][e2_idx]
         R = row['mean'][a] * ARCS2RAD
-        sersic_shape = slvr.ft(np.array([e1,e2,R])).reshape((3,nssrc))
+        sersic_shape = slvr.ft(np.array([e1, e2, R])).reshape((3,nssrc))
         slvr.transfer_sersic_shape(sersic_shape)
 
         # Create observed data and upload it to the GPU.
