@@ -63,17 +63,17 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
     modes_SNR = []
 
     for index, row in df.iterrows():
-        lm[:,0] = row['mean'].str[l].values
-        lm[:,1] = row['mean'].str[m].values
+        lm[:,0] = row['mean'][l]
+        lm[:,1] = row['mean'][m]
         slvr.transfer_lm(lm)
 
-        flux = row['mean'].str[s].values
+        flux = row['mean'][s]
         I[:] = np.outer(flux, np.ones((ntime,)))
         slvr.transfer_stokes(stokes)
 
-        e1 = row['mean'].str[e1].values
-        e2 = row['mean'].str[e2].values
-        R = row['mean'].str[a].values * ARCS2RAD
+        e1 = row['mean'][e1]
+        e2 = row['mean'][e2]
+        R = row['mean'][a] * ARCS2RAD
         sersic_shape = slvr.ft(np.array([e1,e2,R])).reshape((3,nssrc))
         slvr.transfer_sersic_shape(sersic_shape)
 
