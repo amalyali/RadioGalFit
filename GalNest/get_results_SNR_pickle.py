@@ -18,7 +18,6 @@ import montblanc
 import montblanc.util as mbu
 import pandas as pd
 import pickle
-
 from  montblanc.config import RimeSolverConfig as Options
 
 ARCS2RAD = np.pi/648000.
@@ -32,7 +31,7 @@ seed = 1
 best_modes_pkl = './data/low_snr/seed%s_14000_0.8_0.1_.pkl' % seed
 results_pkl = './data/low_snr/seed%s_14000_0.8_0.1_wSNR.pkl' % seed
 
-#Set visibility noise variance (muJy)
+# Set visibility noise variance (muJy)
 time_acc = 60
 efficiency = 0.9
 channel_bandwidth_hz = 240e6
@@ -60,9 +59,10 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
 
     # Read pickled MultiNest output.
     data = pd.read_pickle(best_modes_pkl)
+    df = pd.DataFrame.from_dict(data['modes'])
     modes_SNR = []
 
-    for index, row in data.iterrows():
+    for index, row in df.iterrows():
         lm[:,0] = row['mean'].str[l].values
         lm[:,1] = row['mean'].str[m].values
         slvr.transfer_lm(lm)
@@ -87,6 +87,6 @@ with montblanc.rime_solver(slvr_cfg) as slvr:
 
     # Add on column to dataframe from MultiNest. Write results to file
     modes_SNR = np.asarray(modes_SNR)
-    data['SNR'] = modes_SNR
+    df['SNR'] = modes_SNR
     with open(results_pkl, 'wb') as f:
-        pickle.dump(data, f)
+        pickle.dump(df, f)
