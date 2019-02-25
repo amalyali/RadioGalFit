@@ -30,7 +30,7 @@ scale_lower, scale_upper = 0.3, 3.5  # arcsec
 # Load in params from cmd line for output naming.
 parser = argparse.ArgumentParser(description='GalNest')
 parser.add_argument('msfile', help='Input MS filename')  # MS = measurement set
-parser.add_argument('-ns', dest='nssrc', type=int, default=1, help='Number of Sersic Galaxies')
+#parser.add_argument('-ns', dest='nssrc', type=int, default=1, help='Number of Sersic Galaxies')
 parser.add_argument('seed', help='Seed for MultiNest')
 parser.add_argument('n_live', help='No. live points')
 parser.add_argument('s_eff', help='Sampling efficiency of multinest')
@@ -133,7 +133,7 @@ def generate_random_data(u, min_value, max_value, F):
 global slvr, stokes
 
 slvr_cfg = montblanc.rime_solver_cfg(msfile=args.msfile,
-                                     sources=montblanc.sources(point=0, gaussian=0, sersic=args.nssrc),
+                                     sources=montblanc.sources(point=0, gaussian=0, sersic=1),
                                      init_weights=None, weight_vector=False,
                                      sersic_gradient=False, dtype='double', version='v4')
 
