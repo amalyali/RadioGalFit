@@ -17,7 +17,7 @@ export CUDA_VISIBLE_DEVICES=2  # select a smaller number of GPUs (montblanc uses
 source activate boost_gcc5
 
 MSFILE='2_SKA-1pol.ms'
-SNR_THRESH=10.0
+SNR_THRESH=8.0
 
 python get_results_SNR.py /share/data1/alm/${MSFILE}/ $SNR_THRESH
 
