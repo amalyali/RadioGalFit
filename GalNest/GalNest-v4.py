@@ -237,7 +237,7 @@ with montblanc.rime_solver(slvr_cfg) as slvr:  # Read in observed visibilities
     # Write results to file
     results_pickle = '%s/seed%s_%s_%s_%s_.pkl' % (DATA_DIR, SEED, N_LIVE, S_EFF, EV_TOL)
     with open(results_pickle, 'wb') as f:
-        pickle.dump(all_arr, f)
+        pickle.dump(mode_stats, f)
 
     """#with open(file_w, 'a') as txt:
         a = 0
