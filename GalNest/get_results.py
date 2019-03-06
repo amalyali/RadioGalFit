@@ -1,7 +1,7 @@
 """
-Use flux cut and mean-shift clustering to find modes which correspond to true galaxies within the modal set returned
+Use mean-shift clustering and SNR cut to find modes which correspond to true galaxies within the modal set returned
 by MultiNest.
-A. Malyali 2018
+A. Malyali 2019
 """
 import numpy as np
 from sklearn.cluster import MeanShift
@@ -16,13 +16,11 @@ FOV = 3600. * ARCS2RAD
 l, m, s, a, e1, e2 = 0, 1, 2, 3, 4, 5  # define parameter indexes
 
 
-def flux_filter(df_modes, flux_cut):
+def snr_filter(df_modes, snr_cut):
     """
-    Filter all modes with flux below flux limit.
-    :param df_modes: input df of MultiNest modal output in dictionary.
-    :return: input df with boolean column describing above or below flux cut
+    Filter out all modes with SNR below SNR threshold.
     """
-    df_modes['above_cut'] = np.where(df_modes['mean'].str[s] > flux_cut, 1, 0)
+    df_modes['above_cut'] = np.where(df_modes['SNR'] > snr_cut, 1, 0)
     return df_modes
 
 
@@ -48,7 +46,7 @@ def identify_clusters(df_modes):
     return df_modes
 
 
-def final_modes(df_modes, flux_cut):
+def final_modes(df_modes, cut):
     """
     Within each cluster, select mode with highest local log evidence as
     best estimate for that group (and therefore the source).
@@ -57,33 +55,34 @@ def final_modes(df_modes, flux_cut):
     :return:
     """
     df_modes['max_in_cluster'] = df_modes.groupby(['cluster_id'])['local log-evidence'].transform(max) == df_modes['local log-evidence']
-    df_modes = flux_filter(df_modes, flux_cut)
+    df_modes = snr_filter(df_modes, cut)
     df_modes['final'] = np.where((df_modes['max_in_cluster'] == True) & (df_modes['above_cut'] == True), 1, 0)
     return df_modes
 
 
 if __name__ == "__main__":
     """
-    Load MultiNest output.
+    Load MultiNest output with mode SNRs.
     1. Find cluster centres
     2. Select mode in each cluster with highest local log evidence
-    3. Apply a flux cut
-    4. Save final selected modes to a text file. 
+    3. Apply a SNR cut
+    4. Save final selected modes. 
     """
+    # TODO: rename get_results_SNR_pickle.py -> compute_mode_SNR.py
+    # TODO: rename + update contents of run_snr_cut.sh - > run_compute_mode_SNR.sh
     parser = argparse.ArgumentParser(description='.')
-    parser.add_argument('filename', help='filename of the output file produced by GalNest')
-    parser.add_argument('s_cut', help='Flux cut')
+    parser.add_argument('filename', help='pickle output file produced by compute_mode_SNR.py')  # TODO
+    parser.add_argument('snr_cut', help='SNR cut')
     args = parser.parse_args(sys.argv[1:])
 
-    FLUX_CUT = float(args.s_cut)
+    snr_cut = float(args.snr_cut)
     pickled_multinest_output = args.filename
+    output_results_pickle = './data/seed1_100_0.8_0.1_final.pkl'
 
-    results_pickle = './data/seed1_100_0.8_0.1_.pkl'
-    data = pd.read_pickle(results_pickle)
+    # Load in modes, then cluster + perform SNR cut.
+    data = pd.read_pickle(pickled_multinest_output)
     df = pd.DataFrame.from_dict(data['modes'])
-    df_final = final_modes(identify_clusters(df), FLUX_CUT)
+    df_final = final_modes(identify_clusters(df), snr_cut)
 
-    # Write results to file
-    output_pickle = './data/seed1_100_0.8_0.1_final.pkl'
-    with open(output_pickle, 'wb') as f:
+    with open(output_results_pickle, 'wb') as f:
         pickle.dump(df_final, f)
