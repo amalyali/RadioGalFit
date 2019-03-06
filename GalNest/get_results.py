@@ -68,8 +68,6 @@ if __name__ == "__main__":
     3. Apply a SNR cut
     4. Save final selected modes. 
     """
-    # TODO: rename get_results_SNR_pickle.py -> compute_mode_SNR.py
-    # TODO: rename + update contents of run_snr_cut.sh - > run_compute_mode_SNR.sh
     parser = argparse.ArgumentParser(description='.')
     parser.add_argument('filename', help='pickle output file produced by compute_mode_SNR.py')  # TODO
     parser.add_argument('snr_cut', help='SNR cut')
@@ -77,12 +75,12 @@ if __name__ == "__main__":
 
     snr_cut = float(args.snr_cut)
     pickled_multinest_output = args.filename
-    output_results_pickle = './data/seed1_100_0.8_0.1_final.pkl'
+    final_results_pickle = './data/seed1_100_0.8_0.1_final.pkl'
 
     # Load in modes, then cluster + perform SNR cut.
     data = pd.read_pickle(pickled_multinest_output)
     df = pd.DataFrame.from_dict(data['modes'])
     df_final = final_modes(identify_clusters(df), snr_cut)
 
-    with open(output_results_pickle, 'wb') as f:
+    with open(final_results_pickle, 'wb') as f:
         pickle.dump(df_final, f)
